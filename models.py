@@ -19,14 +19,22 @@ class Author(db.Model):
     bio = db.Column(db.String)
 
 
+class Category(db.Model):
+    __tablename__ = 'category'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    description = db.Column(db.String)
+
+
 class Book(db.Model):
     __tablename__ = 'book'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, nullable=False)
-    tech_category = db.Column(db.String, nullable=False)
-    publish_date = db.Column(db.Date)
-    author_id = db.Column(db.Integer, db.ForeignKey('author.id'))
-    link = db.Column(db.String)
     abstract = db.Column(db.String)
-
+    publish_date = db.Column(db.Date)
+    link = db.Column(db.String)
+    author_id = db.Column(db.Integer, db.ForeignKey('author.id'))
+    tech_category = db.Column(db.String, db.ForeignKey('category.id'), nullable=False)
+   
     author = db.relationship(Author)
+    category = db.relationship(Category)
