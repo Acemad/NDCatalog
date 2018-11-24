@@ -22,8 +22,8 @@ class Author(db.Model):
 class Book(db.Model):
     __tablename__ = 'book'
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String)    
-    tech_category = db.Column(db.String)
+    title = db.Column(db.String, nullable=False)    
+    tech_category = db.Column(db.String, nullable=False)
     publish_date = db.Column(db.Date)
     author_id = db.Column(db.Integer, db.ForeignKey('author.id'))
     link = db.Column(db.String)
