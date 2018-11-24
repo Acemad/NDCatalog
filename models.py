@@ -16,6 +16,7 @@ class Author(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.String, nullable=False)
+    bio = db.Column(db.String)
 
 
 class Book(db.Model):
@@ -26,5 +27,6 @@ class Book(db.Model):
     publish_date = db.Column(db.Date)
     author_id = db.Column(db.Integer, db.ForeignKey('author.id'))
     link = db.Column(db.String)
+    abstract = db.Column(db.String)
 
     author = db.relationship(Author)
