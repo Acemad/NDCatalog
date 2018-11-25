@@ -1,5 +1,59 @@
 {% extends 'base.html' %}
-{% block title %}Home{% endblock %}
+{% block title %}Add a New Book{% endblock %}
 {% block content %}
-<h1>Hello</h1>
+<form action="#" method="post">
+    <div class="form-group row">
+        <label for="category" class="col-sm-2 col-form-label">Category</label>
+        <div class="col-sm-4">
+            {% if categories %}
+            <select class="form-control" name="category">
+                {% for category in categories %}
+                <option>{{category.name}}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="title" class="col-sm-2 col-form-label">Title</label>
+        <div class="col-sm-6">
+            <input class="form-control" type="text" name="title" placeholder="Book Title">
+        </div>
+    </div>
+    <div class="form-group row">
+            <label for="authorFName" class="col-sm-2 col-form-label">Author</label>
+            <div class="col-sm-4">
+                <input class="form-control" type="text" name="authorFName" placeholder="First Name">
+            </div>
+            <div class="col-sm-4">
+                <input class="form-control" type="text" name="authorLName" placeholder="Last Name">
+            </div>
+    </div>
+    <div class="form-group row">
+            <label for="year" class="col-sm-2 col-form-label">Year Published</label>
+            <div class="col-sm-2">
+                <input class="form-control" type="number" name="year" value="2018" min="1800" max="2100">
+            </div>            
+    </div>
+    <div class="form-group row">
+            <label for="link" class="col-sm-2 col-form-label">Link</label>
+            <div class="col-sm-4">
+                <input class="form-control" type="text" name="link">
+            </div>            
+    </div>
+    <div class="form-group row">
+            <label for="coverUrl" class="col-sm-2 col-form-label">Cover URL</label>
+            <div class="col-sm-4">
+                <input class="form-control" type="text" name="coverUrl">
+            </div>            
+    </div>
+    <div class="form-group row">
+            <label for="summary" class="col-sm-2 col-form-label">Summary</label>
+            <div class="col-sm-4">
+                <textarea class="form-control" type="" name="summary"></textarea>
+            </div>            
+    </div>
+
+
+</form>
 {% endblock %}
