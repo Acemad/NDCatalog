@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from flask import Flask, render_template, request
-from models import db, User, Book
+from flask import Flask, render_template, request, redirect, url_for
+from models import db, User, Book, Category
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///techBooks.db'
@@ -9,12 +9,16 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 @app.route('/')  # Display all categories
 def home():
-    return render_template('home.html')
+    categories = Category.query.all()
+    return render_template('home.html', categories=categories)
 
 
-@app.route('/<category>')  # Display items in the provided category
+@app.route('/tech/<category>')  # Display items in the provided category
 def showCategory(category):
-    return render_template('category.html')
+    category = category.replace('-', ' ')
+    cat = Category.query.filter_by(name=category).one()
+    books = Book.query.filter_by(category_id=cat.id).all()
+    return render_template('category.html', books=books)
 
 
 @app.route('/new', methods=['GET', 'POST'])  # Add a new book (item)
@@ -22,20 +26,21 @@ def newBook():
     if request.method == 'POST':
         pass
     else:
-        return render_template('new.html')
+        categories = Category.query.all()
+        return render_template('new.html', categories=categories)
 
 
-@app.route('/<category>/<title>')  # View details about a book (item)
+@app.route('/tech/<category>/<title>')  # View details about a book (item)
 def viewBook(title):
     return render_template('book.html')
 
 
-@app.route('/<category>/<title>/edit', methods=['GET', 'POST'])  # Edit a book
+@app.route('/tech/<category>/<title>/edit', methods=['GET', 'POST'])  # Edit a book
 def editBook(title):
     return render_template('editBook.html')
 
 
-@app.route('/<category>/<title>/delete', methods=['GET', 'POST'])  # Delete a book
+@app.route('/tech/<category>/<title>/delete', methods=['GET', 'POST'])  # Delete a book
 def deleteBook(title):
     return render_template('deleteBook.html')
 
