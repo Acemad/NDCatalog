@@ -31,7 +31,7 @@ class Book(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, nullable=False)
     summary = db.Column(db.String)
-    publish_year = db.Column(db.Date)
+    publish_year = db.Column(db.String(4))
     link = db.Column(db.String)
     cover_url = db.Column(db.String)
     isbn = db.Column(db.String)
