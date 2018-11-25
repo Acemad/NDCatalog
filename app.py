@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from flask import Flask, render_template, request, redirect, url_for
-from models import db, User, Book, Category
+from models import db, Author, User, Book, Category
+import datetime
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///techBooks.db'
@@ -23,8 +24,20 @@ def showCategory(category):
 
 @app.route('/new', methods=['GET', 'POST'])  # Add a new book (item)
 def newBook():
-    if request.method == 'POST':
-        pass
+    if request.method == 'POST':    
+        author_id = create_author(request.form['authorFName'], request.form['authorLName'])
+        category_id = get_category_id(request.form['category'])
+        book = Book(title=request.form['title'],
+                    author_id=author_id,
+                    category_id=category_id,
+                    publish_year=request.form['year'],
+                    link=request.form['link'],
+                    cover_url=request.form['coverUrl'],
+                    summary=request.form['summary'],
+                    isbn=request.form['isbn'])
+        db.session.add(book)
+        db.session.commit()
+        return redirect(url_for('home'))
     else:
         categories = Category.query.all()
         return render_template('new.html', categories=categories)
@@ -44,6 +57,16 @@ def editBook(title):
 def deleteBook(title):
     return render_template('deleteBook.html')
 
+
+def create_author(first_name, last_name, bio=None):
+    author = Author(first_name=first_name, last_name=last_name, bio=bio)
+    db.session.add(author)
+    db.session.commit()
+    return author.id
+
+def get_category_id(name):
+    category = Category.query.filter_by(name=name).one()
+    return category.id
 
 if __name__ == '__main__':
     db.init_app(app)
