@@ -22,7 +22,7 @@ class Author(db.Model):
 class Category(db.Model):
     __tablename__ = 'category'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
+    name = db.Column(db.String, nullable=False, unique=True)
     description = db.Column(db.String)
 
 
@@ -30,11 +30,13 @@ class Book(db.Model):
     __tablename__ = 'book'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, nullable=False)
-    abstract = db.Column(db.String)
-    publish_date = db.Column(db.Date)
+    summary = db.Column(db.String)
+    publish_year = db.Column(db.Date)
     link = db.Column(db.String)
+    cover_url = db.Column(db.String)
+    isbn = db.Column(db.String)
     author_id = db.Column(db.Integer, db.ForeignKey('author.id'))
-    tech_category = db.Column(db.String, db.ForeignKey('category.id'), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
    
     author = db.relationship(Author)
     category = db.relationship(Category)
