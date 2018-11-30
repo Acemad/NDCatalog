@@ -10,10 +10,11 @@
 <body>
     <div class="container">
         <nav class="navbar navbar-expand-sm navbar-light bg-light">
-            <a class="navbar-brand" href="/">AWTBooks</a>
+            <a class="navbar-brand" href="{{url_for('home')}}">AWTBooks</a>
             <div class="navbar-nav">
-                <a class="nav-item nav-link active" href="#">Home</a>
-                <a class="nav-item nav-link" href="#">Log-in</a>                
+                <a class="nav-item nav-link active" href="{{url_for('home')}}">Home</a>
+                <a class="nav-item nav-link" href="#">Log-in</a>
+                <a class="nav-item nav-link" href="{{url_for('newBook')}}">Add Book</a>
             </div>
         </nav>
         
