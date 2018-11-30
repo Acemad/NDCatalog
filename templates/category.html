@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
-{% block title %}Home{% endblock %}
+{% block title %}{{category}} Books{% endblock %}
 {% block content %}
 <div class="card-deck">
     {% if books %}
     {% for book in books %}
     <div class="col-sm-auto mb-5">
     <div class="card h-100"> 
-        <img class="card-img-top" src="#">
+        <img class="card-img-top" src="https://dummyimage.com/50x50.gif">
         <div class="card-body">
             <h5 class="card-title">
-                <a href="#">{{ book.title }}</a>
+                <a href="{{ url_for('viewBook', category=category, title=book.title)|replace('%20','-')}}">{{ book.title }}</a>
             </h5>
             <p class="card-text">Text</p>
         </div>
