@@ -6,7 +6,7 @@
     {% for category in categories %}
     <div class="col-sm-auto mb-5">
     <div class="card h-100"> 
-        <img class="card-img-top" src="#">
+        <img class="card-img-top" src="https://dummyimage.com/50x50.gif">
         <div class="card-body">
             <h5 class="card-title">
                 <a href="{{url_for('showCategory', category=category.name)|replace('%20','-')}}">{{ category.name }}</a>
