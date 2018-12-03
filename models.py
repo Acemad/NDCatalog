@@ -15,6 +15,7 @@ class Category(db.Model):
     __tablename__ = 'category'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False, unique=True)
+    icon_url = db.Column(db.String)
     description = db.Column(db.String)
 
     @property
@@ -27,7 +28,7 @@ class Category(db.Model):
 
 class Book(db.Model):
     __tablename__ = 'book'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String, nullable=False)
     summary = db.Column(db.String)
     publish_year = db.Column(db.String(4))
@@ -35,8 +36,10 @@ class Book(db.Model):
     cover_url = db.Column(db.String)
     isbn = db.Column(db.String)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     
     category = db.relationship(Category)
+    user = db.relationship(User)
 
     @property
     def serialize(self):
@@ -65,5 +68,4 @@ class Author(db.Model):
             'first_name': self.first_name,
             'last_name': self.last_name
         }
-        
-        
+
