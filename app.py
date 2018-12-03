@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
+from flask import session as user_session
 from models import db, Author, User, Book, Category
-import datetime, json
+import datetime, json, random, string, httplib2
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///techBooks.db'
@@ -11,7 +12,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 @app.route('/')  # Display all categories
 def home():
     categories = Category.query.all()
-    return render_template('home.html', categories=categories)
+    return render_template('home.html', categories=categories, user_session=user_session)
 
 
 @app.route('/tech/<category>')  # Display items in the provided category
@@ -19,11 +20,15 @@ def showCategory(category):
     category = category.replace('-', ' ')
     cat = Category.query.filter_by(name=category).one()
     books = Book.query.filter_by(category_id=cat.id).all()
-    return render_template('category.html', books=books, category=category)
+    return render_template('category.html', books=books, category=category, user_session=user_session)
 
 
 @app.route('/new', methods=['GET', 'POST'])  # Add a new book (item)
 def newBook():
+    if 'username' not in user_session:
+        return render_template('error.html', 
+                        header='You Can\'t Add a New Book !',
+                        message='You need to log-in first before attempting to create a new book.')
     if request.method == 'POST':  # TODO: Correct behavior when no aothor is entered                
         category_id = get_category_id(request.form['category'])      
         book = Book(title=request.form['title'],
@@ -32,15 +37,21 @@ def newBook():
                     link=request.form['link'],
                     cover_url=request.form['coverUrl'],
                     summary=request.form['summary'],
-                    isbn=request.form['isbn'])
-        if request.form['authorFName'] or request.form['authorLName']:
-            create_author(book.id, request.form['authorFName'], request.form['authorLName'])
+                    isbn=request.form['isbn'],
+                    user_id=user_session['user_id'])
         db.session.add(book)
+        db.session.flush()
+        author = Author(book_id=book.id,
+                        first_name=request.form['authorFName'],
+                        last_name=request.form['authorLName'])                        
+        db.session.add(author)
         db.session.commit()
-        return redirect(url_for('home'))
+        flash('The Book was Added Successfully !')
+        return redirect(url_for('showCategory', category=request.form['category']))
     else:
         categories = Category.query.all()
-        return render_template('new.html', categories=categories)
+        return render_template('new.html', categories=categories, user_session=user_session)
+        
 
 
 @app.route('/tech/<category>/<title>')  # View details about a book (item)
@@ -48,24 +59,30 @@ def viewBook(category, title):
     category = category.replace('-', ' ')
     title = title.replace('-', ' ')
     book = Book.query.filter_by(title=title).one()
-    return render_template('book.html', book=book, category=category)
+    author = Author.query.filter_by(book_id=book.id).one()
+    return render_template('book.html', book=book, category=category, author=author, user_session=user_session)
 
 
 @app.route('/tech/<category>/<title>/edit', methods=['GET', 'POST'])  # Edit a book
 def editBook(category, title):
+    if 'username' not in user_session:
+        return render_template('error.html', 
+                        header='You Can\'t Edit a Book !',
+                        message='You need to log-in first before attempting to edit a book.')
     category = category.replace('-', ' ')
     title = title.replace('-', ' ')
     book = Book.query.filter_by(title=title).one()
-    try:
-        author = Author.query.filter_by(book_id=book.id).one()
-    except:
-        author = None
+    if book.user_id != user_session['user_id']:
+        return render_template('error.html', 
+                        header='You Can\'t Edit this Book !',
+                        message='This book was added by another user, you can\'t edit other user\'s books.')
+    author = Author.query.filter_by(book_id=book.id).one()
     categories = Category.query.all()
     if request.method == 'POST':
         if request.form['title'] != book.title:
             book.title = request.form['title']
         if get_category_id(request.form['category']) != book.category_id:
-            book.category_id = get_category_id(request.form['category'])        
+            book.category_id = get_category_id(request.form['category'])
         if request.form['year'] != book.publish_year:
             book.publish_year = request.form['year']
         if request.form['link'] != book.link:
@@ -76,29 +93,38 @@ def editBook(category, title):
             book.summary = request.form['summary']
         if request.form['isbn'] != book.isbn:
             book.isbn = request.form['isbn']                
-        if author and request.form['authorFName'] != author.first_name:
+        if request.form['authorFName'] != author.first_name:
             author.first_name = request.form['authorFName']            
-        if author and request.form['authorLName'] != author.last_name:
+        if request.form['authorLName'] != author.last_name:
             author.last_name = request.form['authorLName']
         
-        if author:
-            db.session.add(author)
+        db.session.add(author)
         db.session.add(book)      
-        db.session.commit()        
+        db.session.commit()
+        flash('The Book was Edited Successfully !')
         return redirect(url_for('viewBook', category=get_category_name(book.category_id), title=book.title).replace('%20', '-'))
     else:
-        return render_template('editBook.html', book=book, book_category=category, categories=categories, author=author)
+        return render_template('editBook.html', book=book, book_category=category, categories=categories, author=author, user_session=user_session)
 
 
-@app.route('/tech/<category>/<title>/delete', methods=['GET', 'POST'])  # Delete a book
+@app.route('/tech/<category>/<title>/delete', methods=['POST'])  # Delete a book
 def deleteBook(category, title):
+    if 'username' not in user_session:
+        return render_template('error.html', 
+                        header='You Can\'t Delete a Book !',
+                        message='You need to log-in first before attempting to delete a book.')
     category = category.replace('-', ' ')
     title = title.replace('-', ' ')
     book = Book.query.filter_by(title=title).one()
+    if book.user_id != user_session['user_id']:
+        return render_template('error.html', 
+                        header='You Can\'t Delete this Book !',
+                        message='This book was added by another user, you can\'t delete other user\'s books.')
     author = Author.query.filter_by(book_id=book.id).one()
     db.session.delete(author)
     db.session.delete(book)
     db.session.commit()
+    flash('The Book was Deleted Successfully !')
     return redirect(url_for('showCategory', category=category).replace('%20', '-'))
 
 @app.route('/tech/<category>/<title>/json')
