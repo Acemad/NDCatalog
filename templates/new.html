@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
 {% block title %}Add a New Book{% endblock %}
+{% block header %}
+<h2>Adding a New Book</h2>
+{% endblock %}
+{% block navAdd %} active {% endblock %}
 {% block content %}
 <form action="{{url_for('newBook')}}" method="post">
     <div class="form-group row">
@@ -17,14 +21,17 @@
     <div class="form-group row">
         <label for="title" class="col-sm-2 col-form-label">Title</label>
         <div class="col-sm-6">
-            <input class="form-control" type="text" name="title" placeholder="Book Title">
+            <input class="form-control" type="text" name="title" placeholder="Book Title" required>
         </div>
     </div>
     <div class="form-group row">
-            <label for="authorFName" class="col-sm-2 col-form-label">Author</label>
+            <label for="authorFName" class="col-sm-2 col-form-label">Author First Name</label>
             <div class="col-sm-4">
                 <input class="form-control" type="text" name="authorFName" placeholder="First Name">
             </div>
+    </div>
+    <div class="form-group row">
+            <label for="authorLName" class="col-sm-2 col-form-label">Author Last Name</label>
             <div class="col-sm-4">
                 <input class="form-control" type="text" name="authorLName" placeholder="Last Name">
             </div>
@@ -49,8 +56,8 @@
     </div>
     <div class="form-group row">
             <label for="summary" class="col-sm-2 col-form-label">Summary</label>
-            <div class="col-sm-4">
-                <textarea class="form-control" type="" name="summary"></textarea>
+            <div class="col-sm-6">
+                <textarea class="form-control" rows="6" name="summary"></textarea>
             </div>            
     </div>
     <div class="form-group row">
