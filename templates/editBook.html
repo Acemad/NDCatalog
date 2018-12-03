@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 {% block title %}Edit Book: {{book.title}}{% endblock %}
+{% block header %}
+<h2>Editing : {{book.title}}</h2>
+{% endblock %}
 {% block content %}
 <form action="{{url_for('editBook', category=book_category, title=book.title)}}" method="post">
     <div class="form-group row">
@@ -21,14 +24,18 @@
         </div>
     </div>
     <div class="form-group row">
-            <label for="authorFName" class="col-sm-2 col-form-label">Author</label>
+            <label for="authorFName" class="col-sm-2 col-form-label">Author First Name</label>
             <div class="col-sm-4">
                 <input class="form-control" type="text" name="authorFName" value="{{author.first_name}}">
             </div>
+    </div>
+    <div class="form-group row">
+            <label for="authorLName" class="col-sm-2 col-form-label">Author Last Name</label>            
             <div class="col-sm-4">
                 <input class="form-control" type="text" name="authorLName" value="{{author.last_name}}">
             </div>
     </div>
+
     <div class="form-group row">
             <label for="year" class="col-sm-2 col-form-label">Year Published</label>
             <div class="col-sm-2">
@@ -49,8 +56,8 @@
     </div>
     <div class="form-group row">
             <label for="summary" class="col-sm-2 col-form-label">Summary</label>
-            <div class="col-sm-4">
-                <textarea class="form-control" name="summary">{{book.summary}}</textarea>
+            <div class="col-sm-6">
+                <textarea class="form-control" rows="6" name="summary">{{book.summary}}</textarea>
             </div>            
     </div>
     <div class="form-group row">
