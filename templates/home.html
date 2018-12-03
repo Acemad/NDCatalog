@@ -1,17 +1,26 @@
 {% extends 'base.html' %}
 {% block title %}Home{% endblock %}
+{% block header %}
+<h2>All Categories</h2>
+{% endblock %}
+{% block navHome %} active {% endblock %}
 {% block content %}
-<div class="card-deck">
+<div class="row">
     {% if categories %}
-    {% for category in categories %}
-    <div class="col-sm-auto mb-5">
-    <div class="card h-100"> 
-        <img class="card-img-top" src="https://dummyimage.com/50x50.gif">
-        <div class="card-body">
-            <h5 class="card-title">
+    {% for category in categories %}       
+    <div class="col-sm-6 col-lg-4">
+    <div class="media mb-5">
+        <a href="{{url_for('showCategory', category=category.name)|replace('%20','-')}}">
+            {% if category.icon_url %}
+            <img class="mr-3 category-icon" src="{{category.icon_url}}">
+            {% else %}
+            <img class="mr-3 category-icon" src="{{url_for('static', filename='tech.png')}}">
+            {% endif %}
+        </a>
+        <div class="align-self-center media-body">
+            <h4>
                 <a href="{{url_for('showCategory', category=category.name)|replace('%20','-')}}">{{ category.name }}</a>
-            </h5>
-            <p class="card-text">Text</p>
+            </h4>
         </div>
     </div>
     </div>
