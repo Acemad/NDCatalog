@@ -118,26 +118,86 @@ def categoryJSON(category):
     booksJson = []
     for book in books:
         author = Author.query.filter_by(book_id=book.id).one()
-        booksJson.append({'Book':book.serialize, 'Author':author.serialize, 'Category':category.serialize})
+        booksJson.append({'Book': book.serialize, 'Author': author.serialize, 'Category':category.serialize})
     return jsonify(Books=booksJson)
 
 
+@app.route('/login')
+def showLogin():
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits) for i in range(32))
+    user_session['state'] = state
+    return render_template('login.html', state=state, user_session=user_session)
 
-def create_author(book_id, first_name, last_name):
-    author = Author(book_id=book_id, first_name=first_name, last_name=last_name)
-    db.session.add(author)
-    db.session.commit()
+@app.route('/gconnect', methods=['POST'])
+def gconnect():
+    if request.args.get('state') != user_session['state']:
+        return render_template('error.html', 
+                header='Invalid Session',
+                message='This session is invalid, please try again.')
+
+    h = httplib2.Http()
+    url = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=%s" % request.data.decode('utf-8')    
+    resp, cont = h.request(url, 'GET')
+    
+    if resp['status'] != '200':
+        return render_template('error.html', 
+                header='Invalid Issuer',
+                message='Token wasn\'t issued by Google.')
+
+    data = json.loads(cont)
+    user_session['username'] = data['name']
+    user_session['email'] = data['email']
+    user_session['picture'] = data['picture']
+    user_session['g_id'] = data['sub']
+
+    user_id = get_user_id(user_session['email'])
+    if not user_id:
+        user_id = create_user(user_session)
+    user_session['user_id'] = user_id
+    flash('You have successfully Loged-in')
+    return redirect(url_for('home'))
+
+
+@app.route('/disconnect')
+def disconnect():
+    del user_session['username']
+    del user_session['email']
+    del user_session['picture']
+    del user_session['g_id']
+    del user_session['user_id']
+    flash('You have been Loged-out Successfully !')
+    return redirect(url_for('home'))
 
 
 def get_category_id(name):
     category = Category.query.filter_by(name=name).one()
     return category.id
 
+
 def get_category_name(id):
     category = Category.query.filter_by(id=id).one()
     return category.name
 
+
+def get_user_id(email):
+    try:
+        user = User.query.filter_by(email=email).one()
+        return user.id
+    except:
+        return None
+
+
+def create_user(user_session):
+    user = User(name=user_session['username'],
+                email=user_session['email'],
+                picture=user_session['picture'])
+    db.session.add(user)
+    db.session.flush()
+    db.session.commit()
+    return user.id
+
 if __name__ == '__main__':
+    app.secret_key = 'secret_key'
     db.init_app(app)
     with app.app_context():
         db.create_all()
