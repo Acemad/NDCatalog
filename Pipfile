@@ -10,6 +10,8 @@ pycodestyle = "*"
 [packages]
 flask = "*"
 flask-sqlalchemy = "*"
+google-auth = "*"
+httplib2 = "*"
 
 [requires]
 python_version = "3.7"
