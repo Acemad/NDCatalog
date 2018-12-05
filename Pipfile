@@ -12,6 +12,7 @@ flask = "*"
 flask-sqlalchemy = "*"
 google-auth = "*"
 httplib2 = "*"
+python-slugify = "*"
 
 [requires]
 python_version = "3.7"
