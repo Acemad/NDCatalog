@@ -30,6 +30,7 @@ class Category(db.Model):
                      unique=True)
     icon_url = db.Column(db.String)
     description = db.Column(db.String)
+    slug = db.Column(db.String)
 
     @property
     def serialize(self):
@@ -62,6 +63,7 @@ class Book(db.Model):
                             nullable=False)
     # id of the user who added the book
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    slug = db.Column(db.String)
 
     category = db.relationship(Category)
     user = db.relationship(User)
