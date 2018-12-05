@@ -9,6 +9,7 @@ Purpose : this is a data driven tech books catalog.
 from flask import Flask, render_template, request, redirect, url_for
 from flask import session as user_session, flash, jsonify
 from models import db, Author, User, Book, Category
+from slugify import slugify
 import json
 import random
 import string
