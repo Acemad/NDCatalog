@@ -8,7 +8,7 @@ This is my submission for Udacity's Item Catalog project. The project is called 
 ## Description
 
 AWBooks is a simple curated catalog of books related to computing and technology in general.
-It's meant to include the best books in every category, so that visitors wishing to learn about a certain technology
+It's meant to include the best books in every category so that visitors wishing to learn about a certain technology
 will find an updated list of the most awesome books on the subject.
 
 A user has the ability to add a book to any category after signing-in (through Google Accounts), he can then edit or delete the books he added. 
@@ -17,7 +17,7 @@ Supported categories include : Software Engineering, Programming, Web Developmen
 
 ## Project Structure
 
-AWBooks' backend is written in Python 3 using Flask and a variety of extensions such as Flask-SQLAlchemy. The frontend uses Bootstrap 4.
+AWBooks' backend is written in Python 3 using Flask and a variety of extensions such as Flask-SQLAlchemy. SQLite is the database engine used in this project. As for the frontend, it's a simple UI designed using Bootstrap 4.
 
 The project files are structured as illustrated bellow :
 
