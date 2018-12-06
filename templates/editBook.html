@@ -4,7 +4,7 @@
 <h2>Editing : {{book.title}}</h2>
 {% endblock %}
 {% block content %}
-<form action="{{url_for('editBook', category=book_category, title=book.title)}}" method="post">
+<form action="{{url_for('editBook', category_slug=book_category_slug, title_slug=book.slug)}}" method="post">
     <div class="form-group row">
         <label for="category" class="col-sm-2 col-form-label">Category</label>
         <div class="col-sm-4">
@@ -30,49 +30,46 @@
             </div>
     </div>
     <div class="form-group row">
-            <label for="authorLName" class="col-sm-2 col-form-label">Author Last Name</label>            
+            <label for="authorLName" class="col-sm-2 col-form-label">Author Last Name</label>
             <div class="col-sm-4">
                 <input class="form-control" type="text" name="authorLName" value="{{author.last_name}}">
             </div>
     </div>
-
     <div class="form-group row">
             <label for="year" class="col-sm-2 col-form-label">Year Published</label>
             <div class="col-sm-2">
                 <input class="form-control" type="number" name="year" value="{{book.publish_year}}" min="1900" max="2100">
-            </div>            
+            </div>
     </div>
     <div class="form-group row">
             <label for="link" class="col-sm-2 col-form-label">Link</label>
             <div class="col-sm-4">
                 <input class="form-control" type="text" name="link" value="{{book.link}}">
-            </div>            
+            </div>
     </div>
     <div class="form-group row">
             <label for="coverUrl" class="col-sm-2 col-form-label">Cover URL</label>
             <div class="col-sm-4">
                 <input class="form-control" type="text" name="coverUrl" value="{{book.cover_url}}">
-            </div>            
+            </div>
     </div>
     <div class="form-group row">
             <label for="summary" class="col-sm-2 col-form-label">Summary</label>
             <div class="col-sm-6">
                 <textarea class="form-control" rows="6" name="summary">{{book.summary}}</textarea>
-            </div>            
+            </div>
     </div>
     <div class="form-group row">
             <label for="isbn" class="col-sm-2 col-form-label">ISBN</label>
             <div class="col-sm-4">
                 <input class="form-control" type="text" name="isbn" value="{{book.isbn}}">
-            </div>            
+            </div>
     </div>
     <div class="form-group row">
         <div class="col-sm-2">
             <button type="submit" class="btn btn-primary">Edit</button>
-            <a class="btn btn-secondary ml-3" href="{{url_for('viewBook', category=book_category, title=book.title)|replace('%20','-')}}">Cancel</a>
+            <a class="btn btn-secondary ml-3" href="{{url_for('viewBook', category_slug=book_category_slug, title_slug=book.slug)}}">Cancel</a>
         </div>
     </div>
-    
-    
 </form>
 {% endblock %}

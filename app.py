@@ -10,6 +10,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask import session as user_session, flash, jsonify
 from models import db, Author, User, Book, Category
 from slugify import slugify
+from sqlalchemy.orm.exc import NoResultFound
 import json
 import random
 import string
@@ -35,20 +36,25 @@ def home():
                            user_session=user_session)
 
 
-@app.route('/tech/<category>')
-def showCategory(category):
+@app.route('/tech/<category_slug>')
+def showCategory(category_slug):
     """
     READ -
     Displays all the books in the provided category
     """
-    # Remove the '-' added in the template for aesthetic purposes
-    category_name = category.replace('-', ' ')
-    category = Category.query.filter_by(name=category_name).one()
     # Get all the books in the provided category
+    try:
+        category = Category.query.filter_by(slug=category_slug).one()
+    except NoResultFound:
+        # Returns an error page when the category doesn't exist
+        return render_template('error.html',
+                               header='Category Error',
+                               message="""The requested category
+                                          does not exist !"""), 404
     books = Book.query.filter_by(category_id=category.id).all()
     return render_template('category.html',
                            books=books,
-                           category=category_name,
+                           category=category,
                            user_session=user_session)
 
 
@@ -78,7 +84,8 @@ def newBook():
                     cover_url=request.form['coverUrl'],
                     summary=request.form['summary'],
                     isbn=request.form['isbn'],
-                    user_id=user_session['user_id'])
+                    user_id=user_session['user_id'],
+                    slug=slugify(request.form['title']))
         db.session.add(book)
         # flush() is used To get the id of the newly created book
         db.session.flush()
@@ -92,8 +99,9 @@ def newBook():
         # Give feedback to the user
         flash('The Book was Added Successfully !')
         # redirect tp the book's category page
+        category = Category.query.filter_by(id=category_id).one()
         return redirect(url_for('showCategory',
-                                category=request.form['category']))
+                                category_slug=category.slug))
     else:
         # GET request, renders the template containing the form
         categories = Category.query.all()
@@ -102,18 +110,24 @@ def newBook():
                                user_session=user_session)
 
 
-@app.route('/tech/<category>/<title>')
-def viewBook(category, title):
+@app.route('/tech/<category_slug>/<title_slug>')
+def viewBook(category_slug, title_slug):
     """
     READ -
     Displays all the information contained within
     a single book record
     """
-    category = category.replace('-', ' ')
-    title = title.replace('-', ' ')
     # Retrieve the book using its title.
-    book = Book.query.filter_by(title=title).one()
+    try:
+        book = Book.query.filter_by(slug=title_slug).one()
+    except NoResultFound:
+        # Returns an error page if the book doesn't exist
+        return render_template('error.html',
+                               header='Book Error',
+                               message="""The requested book
+                                          does not exist."""), 404
     author = Author.query.filter_by(book_id=book.id).one()
+    category = Category.query.filter_by(id=book.category_id).one()
     return render_template('book.html',
                            book=book,
                            category=category,
@@ -121,9 +135,9 @@ def viewBook(category, title):
                            user_session=user_session)
 
 
-@app.route('/tech/<category>/<title>/edit',
+@app.route('/tech/<category_slug>/<title_slug>/edit',
            methods=['GET', 'POST'])
-def editBook(category, title):
+def editBook(category_slug, title_slug):
     """
     UPDATE -
     (GET) displays the book edit form for a loged-in user
@@ -137,9 +151,14 @@ def editBook(category, title):
                                header='You Can\'t Edit a Book !',
                                message="""You need to log-in first
                                           before attempting to edit a book.""")
-    category = category.replace('-', ' ')
-    title = title.replace('-', ' ')
-    book = Book.query.filter_by(title=title).one()
+    try:
+        book = Book.query.filter_by(slug=title_slug).one()
+    except NoResultFound:
+        # Returns an error page if the book doesn't exist
+        return render_template('error.html',
+                               header='Book Error',
+                               message="""The requested book
+                                          does not exist."""), 404
     # Check if the loged-in user is the one who added the book
     if book.user_id != user_session['user_id']:
         return render_template('error.html',
@@ -154,6 +173,7 @@ def editBook(category, title):
         # Update only the fields where there's new content
         if request.form['title'] != book.title:
             book.title = request.form['title']
+            book.slug = slugify(book.title)
         if get_category_id(request.form['category']) != book.category_id:
             book.category_id = get_category_id(request.form['category'])
         if request.form['year'] != book.publish_year:
@@ -177,35 +197,41 @@ def editBook(category, title):
         flash('The Book was Edited Successfully !')
         # Redirect to the book's page
         return redirect(url_for('viewBook',
-                                category=get_category_name(book.category_id),
-                                title=book.title).replace('%20', '-'))
+                                category_slug=slugify(
+                                    get_category_name(book.category_id)),
+                                title_slug=book.slug))
     else:
         return render_template('editBook.html',
                                book=book,
-                               book_category=category,
+                               book_category_slug=category_slug,
                                categories=categories,
                                author=author,
                                user_session=user_session)
 
 
-@app.route('/tech/<category>/<title>/delete',
-           methods=['POST'])
-def deleteBook(category, title):
+@app.route('/tech/<category_slug>/<title_slug>/delete',
+           methods=['POST', 'GET'])
+def deleteBook(category_slug, title_slug):
     """
     DELETE -
     (POST) Deletes a book from the database, can only
            be performed by the loged-in book creator
-    Doesn't process GET requests
+    (GET) Only accepted to return error messages
     """
     if 'username' not in user_session:  # Check if the user isn't logged-in
         return render_template('error.html',
                                header='You Can\'t Delete a Book !',
                                message="""You need to log-in first before
                                           attempting to delete a book.""")
-    category = category.replace('-', ' ')
-    title = title.replace('-', ' ')
-    book = Book.query.filter_by(title=title).one()
-    # Check if the user is the creator of the book
+    try:
+        book = Book.query.filter_by(slug=title_slug).one()
+    except NoResultFound:
+        # Returns an error page if the book doesn't exist
+        return render_template('error.html',
+                               header='Book Error',
+                               message="""The requested book
+                                          does not exist."""), 404
+    # Check if the current user is the creator of the book
     if book.user_id != user_session['user_id']:
         return render_template('error.html',
                                header='You Can\'t Delete this Book !',
@@ -220,19 +246,23 @@ def deleteBook(category, title):
     flash('The Book was Deleted Successfully !')
     # Redirect to the deleted book's category page
     return redirect(url_for('showCategory',
-                            category=category).replace('%20', '-'))
+                            category_slug=category_slug))
 
 
-@app.route('/tech/<category>/<title>/json')
-def bookJSON(category, title):
+@app.route('/tech/<category_slug>/<title_slug>/json')
+def bookJSON(category_slug, title_slug):
     """
     API Endpoint - READ -
     Returns informations about the provided book
     in JSON format
     """
-    category = category.replace('-', ' ')
-    title = title.replace('-', ' ')
-    book = Book.query.filter_by(title=title).one()
+    try:
+        book = Book.query.filter_by(slug=title_slug).one()
+    except:
+        return render_template('error.html',
+                               header='Book Error',
+                               message="""The requested book
+                                          does not exist."""), 404
     author = Author.query.filter_by(book_id=book.id).one()
     category = Category.query.filter_by(id=book.category_id).one()
     return jsonify(Book=book.serialize,
@@ -240,15 +270,20 @@ def bookJSON(category, title):
                    Category=category.serialize)
 
 
-@app.route('/tech/<category>/json')
-def categoryJSON(category):
+@app.route('/tech/<category_slug>/json')
+def categoryJSON(category_slug):
     """
     API Endpoint - READ -
     Returns informations about all the books in the
     provided category in JSON format
     """
-    category = category.replace('-', ' ')
-    category = Category.query.filter_by(name=category).one()
+    try:
+        category = Category.query.filter_by(slug=category_slug).one()
+    except NoResultFound:
+        return render_template('error.html',
+                               header='Category Error',
+                               message="""The requested category
+                                          does not exist !"""), 404
     books = Book.query.filter_by(category_id=category.id).all()
     booksJson = []
     # Serialize each book in JSON format, with its author info

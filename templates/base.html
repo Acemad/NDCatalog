@@ -5,9 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="google-signin-client_id" content="445182388847-ljaar49reijvo7ukkr0eiqlln0v0p7pg.apps.googleusercontent.com">
     <title>{% block title%}{% endblock %}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">        
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}"
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
 </head>
 <body>
     <div class="container">
@@ -16,11 +16,11 @@
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item {% block navHome %}{% endblock %}"><a class="nav-link" href="{{url_for('home')}}">Home</a></li>
                 {% if 'username' in user_session %}
-                <li class="nav-item {% block navAdd %}{% endblock %}"><a class="nav-link" href="{{url_for('newBook')}}">Add Book</a></li>                
+                <li class="nav-item {% block navAdd %}{% endblock %}"><a class="nav-link" href="{{url_for('newBook')}}">Add Book</a></li>
                 {% endif %}
             </ul>
             <ul class="navbar-nav ml-auto">
-            {% if 'username' in user_session %}                
+            {% if 'username' in user_session %}
                 <li class="nav-item"><a class="nav-link" href="{{url_for('disconnect')}}">Sign-Out</a></li>
             {% else %}
                 <li class="nav-item {% block navLogin %}{% endblock %}"><a class="nav-link" href="{{url_for('showLogin')}}">Sign-In</a></li>
@@ -29,7 +29,7 @@
         </nav>
         <div class="row">
             <div class="col mt-4 mb-4">
-            {% block header %}{% endblock %}            
+            {% block header %}{% endblock %}
             <hr>
             </div>
             {% if 'username' in user_session %}
@@ -40,7 +40,7 @@
                 </div>
             </div>
             {% endif %}
-            <br>            
+            <br>
         </div>
         <div class="row">
             <div class="col">
@@ -62,7 +62,7 @@
             <div class="col">
             {% block content %}{% endblock %}
             </div>
-        </div>        
+        </div>
     </div>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.bundle.min.js" integrity="sha384-pjaaA8dDz/5BgdFUPX6M/9SUZv4d12SUPF0axWc+VRZkx5xU3daN+lYb49+Ax+Tl" crossorigin="anonymous"></script>
