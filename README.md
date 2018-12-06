@@ -42,8 +42,11 @@ The project files are structured as illustrated bellow :
 
 ## Getting Started
 
-This project uses pipenv for dependency management.
-After cloning this repo, CD into it and run the following command :
+This project uses pipenv for dependency management. To install pipenv run :
+
+```$ pip install pipenv```
+
+After installing pipenv, clone this repo then CD into it and run the following command :
 
 ```$ pipenv install```
 
