@@ -17,7 +17,7 @@ Supported categories include : Software Engineering, Programming, Web Developmen
 
 ## Project Structure
 
-AWBooks' backend is written in Python 3 using Flask and a variety of extensions such as Flask-SQLAlchemy. SQLite is the database engine used in this project. As for the frontend, it's a simple UI designed using Bootstrap 4.
+AWBooks' backend is written in Python 3.7 using Flask and a variety of extensions such as Flask-SQLAlchemy. SQLite is the database engine used in this project. As for the frontend, it's a simple UI designed using Bootstrap 4.
 
 The project files are structured as illustrated bellow :
 
@@ -47,10 +47,20 @@ After cloning this repo, CD into it and run the following command :
 
 ```$ pipenv install```
 
-Then type the following to launch the web app :
+## Execution
+
+In your Command Line interface, type the following to launch the web app :
 
 ```$ python app.py```
 
 To use AWBooks, open your web browser and visit : ```http://localhost:8000```
 
 You should be greeted with a homepage listing all the categories available. You can sign-in and add your favorite books.
+
+## Remarks
+
+ - The included database (`techBooks.db`) provides some example book items.
+ - Some categories contain books, some are empty.
+ - Our database model doesn't include all the properties of a book (edition, pages, publisher ... etc) and may include more properties in the next versions.
+ - Currently, our database model only includes informations about the first author of a book, support for multiple authors will be included in next versions.
+ - Currently, categories are fixed in advance, this is to avoid the chaos that may arise with user-generated categories. A more intelligent approach to supporting user-generated categories may surface in the next version.
